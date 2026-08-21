@@ -1,0 +1,8 @@
+# Fixture for this crate's doc tests and unit tests, not a stack meant to be run.
+services:
+  postgres:
+    image: "postgres:18-alpine"
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_DB: "postgres"
+      POSTGRES_PASSWORD: "postgres"

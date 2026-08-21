@@ -1,0 +1,15 @@
+[package]
+name          = "composed"
+description   = "Read image and environment facts out of a Docker Compose file at compile time"
+version       = "0.1.0"
+edition       = "2024"
+license       = "Apache-2.0"
+readme        = "README.md"
+homepage      = "https://github.com/hseeberger/composed"
+repository    = "https://github.com/hseeberger/composed"
+documentation = "https://docs.rs/composed/latest/composed/"
+publish       = true
+
+[dependencies]
+serde        = { version = "1.0", features = [ "derive" ] }
+serde_norway = { version = "0.9" }

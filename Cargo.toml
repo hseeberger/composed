@@ -1,7 +1,7 @@
 [package]
 name          = "composed"
 description   = "Read image and environment facts out of a Docker Compose file at compile time"
-version       = "0.1.0"
+version       = "0.1.1"
 edition       = "2024"
 license       = "Apache-2.0"
 readme        = "README.md"

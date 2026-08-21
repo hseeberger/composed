@@ -16,7 +16,7 @@
 //!
 //! let postgres = COMPOSE.service("postgres");
 //! assert_eq!(postgres.image().tag(), "18-alpine");
-//! assert_eq!(postgres.env("POSTGRES_USER"), "postgres");
+//! assert_eq!(postgres.env("POSTGRES_USER"), "composed");
 //! ```
 //!
 //! The motivating case is starting containers from tests, e.g. with
@@ -438,7 +438,7 @@ mod tests {
 
         assert_eq!(postgres.image().name(), "postgres");
         assert_eq!(postgres.image().tag(), "18-alpine");
-        assert_eq!(postgres.env("POSTGRES_USER"), "postgres");
+        assert_eq!(postgres.env("POSTGRES_USER"), "composed");
     }
 
     #[test]

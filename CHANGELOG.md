@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3](https://github.com/hseeberger/composed/compare/v0.1.2...v0.1.3) - 2026-09-26
+
+### Other
+
+- *(deps)* Bump dtolnay/rust-toolchain
+- *(deps)* Bump the ci-patch group with 2 updates
+- *(deps)* Bump the ci-patch group with 2 updates
+- *(deps)* Bump the ci-patch group with 2 updates
+- *(deps)* bump Rust to 1.98.1
+- *(deps)* Bump taiki-e/install-action in the ci-minor group
+- *(deps)* Bump taiki-e/install-action in the ci-minor group
+- add CODEOWNERS
+
 ## [0.1.2](https://github.com/hseeberger/composed/compare/v0.1.1...v0.1.2) - 2026-08-21
 
 ### Other

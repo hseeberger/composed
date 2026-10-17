@@ -13,3 +13,9 @@ publish       = true
 [dependencies]
 serde        = { version = "1.0", features = [ "derive" ] }
 serde_norway = { version = "0.9" }
+
+[profile.dev]
+debug = "line-tables-only"
+
+[profile.dev.package."*"]
+debug = false

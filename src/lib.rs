@@ -15,7 +15,7 @@
 //! static COMPOSE: LazyLock<Compose> = LazyLock::new(|| compose!("docker-compose.yaml"));
 //!
 //! let postgres = COMPOSE.service("postgres");
-//! assert_eq!(postgres.image().tag(), "18-alpine");
+//! assert_eq!(postgres.image().tag(), "18.6-alpine");
 //! assert_eq!(postgres.env("POSTGRES_USER"), "composed");
 //! ```
 //!
@@ -242,6 +242,7 @@ pub struct Image<'a> {
     name: &'a str,
     tag: Option<&'a str>,
     digest: Option<&'a str>,
+    tag_with_digest: Option<&'a str>,
     service: &'a str,
     source: &'a str,
 }
@@ -281,17 +282,38 @@ impl<'a> Image<'a> {
     pub fn tag(&self) -> &'a str {
         match self.tag {
             Some(tag) => tag,
+            None => self.panic_no_tag(),
+        }
+    }
 
-            None => panic!(
-                "image `{}` of service `{}` in {} has no tag",
-                self.reference, self.service, self.source
-            ),
+    /// The tag part of the reference followed by `@` and the digest, e.g.
+    /// `18.6-alpine@sha256:...`, or only the tag if the reference is not pinned by digest.
+    ///
+    /// Suits APIs that take a tag and pull `name:tag`, such as testcontainers'
+    /// `ImageExt::with_tag`, so that they run exactly the pinned image.
+    ///
+    /// # Panics
+    ///
+    /// If the reference has no tag, i.e. is unpinned or pinned by digest only.
+    #[track_caller]
+    pub fn tag_with_digest(&self) -> &'a str {
+        match self.tag_with_digest {
+            Some(tag_with_digest) => tag_with_digest,
+            None => self.panic_no_tag(),
         }
     }
 
     /// The digest part of the reference, e.g. `sha256:...`, if it is pinned by digest.
     pub fn digest(&self) -> Option<&'a str> {
         self.digest
+    }
+
+    #[track_caller]
+    fn panic_no_tag(&self) -> ! {
+        panic!(
+            "image `{}` of service `{}` in {} has no tag",
+            self.reference, self.service, self.source
+        )
     }
 
     fn parse(reference: &'a str, service: &'a str, source: &'a str) -> Self {
@@ -301,20 +323,33 @@ impl<'a> Image<'a> {
         };
 
         let segment = rest.rfind('/').map_or(0, |index| index + 1);
-        let (name, tag) = match rest[segment..].rfind(':') {
+        let (name, tag, tag_with_digest) = match rest[segment..].rfind(':') {
             Some(index) => {
                 let index = segment + index;
-                (&rest[..index], Some(&rest[index + 1..]))
+                (
+                    &rest[..index],
+                    Some(&rest[index + 1..]),
+                    Some(&reference[index + 1..]),
+                )
             }
 
-            None => (rest, None),
+            None => (rest, None, None),
+        };
+
+        let tag = tag.filter(|tag| !tag.is_empty());
+        let digest = digest.filter(|digest| !digest.is_empty());
+        let tag_with_digest = match (tag, digest) {
+            (Some(_), Some(_)) => tag_with_digest,
+            (Some(tag), None) => Some(tag),
+            (None, _) => None,
         };
 
         Self {
             reference,
             name,
-            tag: tag.filter(|tag| !tag.is_empty()),
-            digest: digest.filter(|digest| !digest.is_empty()),
+            tag,
+            digest,
+            tag_with_digest,
             service,
             source,
         }
@@ -437,7 +472,13 @@ mod tests {
         let postgres = compose.service("postgres");
 
         assert_eq!(postgres.image().name(), "postgres");
-        assert_eq!(postgres.image().tag(), "18-alpine");
+        assert_eq!(postgres.image().tag(), "18.6-alpine");
+        assert!(
+            postgres
+                .image()
+                .tag_with_digest()
+                .starts_with("18.6-alpine@sha256:")
+        );
         assert_eq!(postgres.env("POSTGRES_USER"), "composed");
     }
 
@@ -514,6 +555,35 @@ services:
         assert_eq!(image.tag(), "1.2");
         assert_eq!(image.digest(), Some("sha256:abc"));
         assert_eq!(image.name_and_tag(), ("image", "1.2"));
+        assert_eq!(image.tag_with_digest(), "1.2@sha256:abc");
+    }
+
+    #[test]
+    fn tag_with_digest_without_digest() {
+        let compose = Compose::parse(SOURCE, "services:\n  s:\n    image: image:1.2\n");
+        assert_eq!(compose.image("s").tag_with_digest(), "1.2");
+    }
+
+    #[test]
+    fn tag_with_digest_with_registry_port() {
+        let compose = Compose::parse(
+            SOURCE,
+            "services:\n  s:\n    image: localhost:5000/image:1.2@sha256:abc\n",
+        );
+        assert_eq!(compose.image("s").tag_with_digest(), "1.2@sha256:abc");
+    }
+
+    #[test]
+    fn tag_with_empty_digest() {
+        let compose = Compose::parse(SOURCE, "services:\n  s:\n    image: image:1.2@\n");
+        assert_eq!(compose.image("s").tag_with_digest(), "1.2");
+    }
+
+    #[test]
+    #[should_panic(expected = "has no tag")]
+    fn digest_without_tag_has_no_tag_with_digest() {
+        let compose = Compose::parse(SOURCE, "services:\n  s:\n    image: image@sha256:abc\n");
+        compose.image("s").tag_with_digest();
     }
 
     #[test]

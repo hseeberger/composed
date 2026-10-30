@@ -38,7 +38,7 @@ let container = Postgres::default()
     .with_db_name(postgres.env("POSTGRES_DB"))
     .with_user(postgres.env("POSTGRES_USER"))
     .with_password(postgres.env("POSTGRES_PASSWORD"))
-    .with_tag(postgres.image().tag())
+    .with_tag(postgres.image().tag_with_digest())
     .start()
     .await?;
 ```

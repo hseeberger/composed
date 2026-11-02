@@ -1,7 +1,7 @@
 //! Read facts out of a Docker Compose file at compile time: the name, tag and digest of a
 //! service's image, and its environment variables.
 //!
-//! A `docker-compose.yaml` already declares which image version a project runs and how its
+//! A `compose.yaml` already declares which image version a project runs and how its
 //! services are configured, and tooling like Dependabot keeps that declaration current. Restating
 //! any of it in Rust creates a second source of truth that drifts silently. Reading it instead
 //! leaves the compose file as the one place a version or a credential is written down.
@@ -12,7 +12,7 @@
 //! use composed::{Compose, compose};
 //! use std::sync::LazyLock;
 //!
-//! static COMPOSE: LazyLock<Compose> = LazyLock::new(|| compose!("docker-compose.yaml"));
+//! static COMPOSE: LazyLock<Compose> = LazyLock::new(|| compose!("compose.yaml"));
 //!
 //! let postgres = COMPOSE.service("postgres");
 //! assert_eq!(postgres.image().tag(), "18.6-alpine");
@@ -42,8 +42,8 @@ use std::{
 /// Embed and parse a Docker Compose file at compile time.
 ///
 /// The path literal is resolved relative to the *calling* crate's `CARGO_MANIFEST_DIR`, so a crate
-/// in a workspace subdirectory passes `"../docker-compose.yaml"` and a crate at the repository
-/// root passes `"docker-compose.yaml"`. The file is embedded with [`include_str!`], so a missing or
+/// in a workspace subdirectory passes `"../compose.yaml"` and a crate at the repository
+/// root passes `"compose.yaml"`. The file is embedded with [`include_str!`], so a missing or
 /// renamed file is a compile error rather than a failure at run time.
 ///
 /// Expands to a [`Compose`] value, leaving the call site to decide how to hold it. Prefer a module
@@ -54,7 +54,7 @@ use std::{
 /// use composed::{Compose, compose};
 /// use std::sync::LazyLock;
 ///
-/// static COMPOSE: LazyLock<Compose> = LazyLock::new(|| compose!("docker-compose.yaml"));
+/// static COMPOSE: LazyLock<Compose> = LazyLock::new(|| compose!("compose.yaml"));
 ///
 /// assert_eq!(COMPOSE.image("postgres").name(), "postgres");
 /// ```
@@ -468,7 +468,7 @@ mod tests {
 
     #[test]
     fn compose_macro_reads_this_crate_s_file() {
-        let compose = compose!("docker-compose.yaml");
+        let compose = compose!("compose.yaml");
         let postgres = compose.service("postgres");
 
         assert_eq!(postgres.image().name(), "postgres");

@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4](https://github.com/hseeberger/composed/compare/v0.1.3...v0.1.4) - 2026-11-02
+
+### Other
+
+- rename docker-compose.yaml to compose.yaml
+- *(deps)* Bump the ci-patch group with 3 updates
+
 ## [0.1.3](https://github.com/hseeberger/composed/compare/v0.1.2...v0.1.3) - 2026-10-30
 
 ### Added

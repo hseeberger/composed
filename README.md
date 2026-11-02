@@ -17,7 +17,7 @@
 Read facts out of a Docker Compose file at compile time: the name, tag and digest of a service's
 image, and its environment variables.
 
-A `docker-compose.yaml` already declares which image version a project runs and how its services
+A `compose.yaml` already declares which image version a project runs and how its services
 are configured, and tooling like Dependabot keeps that declaration current. Restating any of it in
 Rust creates a second source of truth that drifts silently. Reading it instead leaves the compose
 file as the one place a version or a credential is written down.
@@ -30,7 +30,7 @@ images like PostgreSQL, a set of credentials that the local stack already declar
 use composed::{Compose, compose};
 use std::sync::LazyLock;
 
-static COMPOSE: LazyLock<Compose> = LazyLock::new(|| compose!("docker-compose.yaml"));
+static COMPOSE: LazyLock<Compose> = LazyLock::new(|| compose!("compose.yaml"));
 
 let postgres = COMPOSE.service("postgres");
 
@@ -44,7 +44,7 @@ let container = Postgres::default()
 ```
 
 The path given to `compose!` is relative to the *calling* crate's `CARGO_MANIFEST_DIR`, so a crate
-in a workspace subdirectory passes `"../docker-compose.yaml"`. The file is embedded with
+in a workspace subdirectory passes `"../compose.yaml"`. The file is embedded with
 `include_str!`, so a missing or renamed file is a compile error. Lookups panic, naming the compose
 file and listing what it does declare, like a failed assertion.
 

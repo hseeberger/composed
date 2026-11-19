@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.4](https://github.com/hseeberger/composed/compare/v0.1.3...v0.1.4) - 2026-11-19
+
+### Documentation
+
+- Regenerate changelogs with the unified config ([#55](https://github.com/hseeberger/composed/pull/55))
+
+### Miscellaneous Tasks
+
+- Rename docker-compose.yaml to compose.yaml ([#39](https://github.com/hseeberger/composed/pull/39))
+
+
 ## [0.1.3](https://github.com/hseeberger/composed/compare/v0.1.2...v0.1.3) - 2026-10-30
 
 ### Features
